@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BlockPG</title>
+    <link rel="stylesheet" href="blockpg.css" />
+    <script src="blockpg.js" defer></script>
+  </head>
+  <body>
+    <nav class="topnav">
+      <a href="index.html">Freeplay</a>
+      <a href="blockpg.html" aria-current="page">BlockPG</a>
+    </nav>
+
+    <main class="wrap">
+      <h1>BlockPG</h1>
+      <div id="board" class="board" aria-label="Spillbrett">
+        <div id="playerGrid" class="player-grid" aria-label="Spiller"></div>
+      </div>
+      <p class="hint">WASD / Piltaster · Klikk på en rute for å hoppe dit</p>
+    </main>
+
+    <!-- Modal for level cleared -->
+    <div id="levelModal" class="overlay hidden" aria-hidden="true">
+      <div
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="lc-title"
+      >
+        <h2 id="lc-title">Level cleared! 🎉</h2>
+        <button id="nextBtn" class="btn">Next level</button>
+      </div>
+    </div>
+  </body>
+</html>
