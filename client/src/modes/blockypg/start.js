@@ -1,138 +1,165 @@
-export function startPG({ board, player, start, goal, overlay }) {
-  // Konfig
-  const cell =
-    parseInt(getComputedStyle(board).getPropertyValue("--cell")) || 64;
+export function startPG({ board, player, overlay, nextBtn }) {
+  const CELLS = 11; // 9/11/13...
+  const PADDING = 4;
 
-  // Størrelse (kvadratisk brett)
-  function sizeBoard() {
-    const s = Math.min(
-      board.clientWidth,
-      board.clientHeight || board.clientWidth
-    );
-    const cols = Math.max(3, Math.floor(s / cell));
-    const rows = cols;
-    return { cols, rows };
-  }
+  const start = { row: CELLS - 1, col: Math.floor(CELLS / 2) }; // nederst midt
+  const goal = { row: 0, col: Math.floor(CELLS / 2) }; // øverst midt
 
-  // Plasser en rute (px)
-  function place(el, cx, cy) {
-    if (!el) return;
-    el.style.width = `${cell}px`;
-    el.style.height = `${cell}px`;
-    el.style.left = `${cx * cell}px`;
-    el.style.top = `${cy * cell}px`;
-  }
+  const state = { cell: 0, row: start.row, col: start.col, modalOpen: false };
 
-  // State
-  let cols = 0,
-    rows = 0;
-  let px = 0,
-    py = 0; // player grid pos
-  let sx = 0,
-    sy = 0; // start pos
-  let gx = 0,
-    gy = 0; // goal pos
+  let startEl = null;
+  let goalEl = null;
+
+  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
   function layout() {
-    const b = board.getBoundingClientRect();
-    const dims = sizeBoard();
-    cols = dims.cols;
-    rows = dims.rows;
+    let rect = board.getBoundingClientRect();
 
-    // Sett absolutt posisjon/size slik at brettet er kvadratisk
-    const sizePx = cols * cell;
-    board.style.position = "relative";
-    board.style.width = `${sizePx}px`;
-    board.style.height = `${sizePx}px`;
-
-    // Start/goal i hjørner
-    sx = 0;
-    sy = rows - 1;
-    gx = cols - 1;
-    gy = 0;
-
-    // Hvis player er utenfor, sett til start
-    if (px < 0 || py < 0 || px >= cols || py >= rows) {
-      px = sx;
-      py = sy;
+    // hvis CSS ikke har satt størrelse ennå, sett en
+    if (rect.width === 0 || rect.height === 0) {
+      const size = Math.floor(
+        Math.min(window.innerWidth, window.innerHeight) * 0.92
+      );
+      board.style.width = size + "px";
+      board.style.height = size + "px";
+      rect = board.getBoundingClientRect();
     }
 
-    place(start, sx, sy);
-    place(goal, gx, gy);
-    place(player, px, py);
+    state.cell = Math.floor(Math.min(rect.width, rect.height) / CELLS);
+    board.style.setProperty("--cell", `${state.cell}px`);
+
+    // spillerstørrelse
+    const s = Math.max(8, state.cell - PADDING * 2);
+    player.style.width = s + "px";
+    player.style.height = s + "px";
+
+    renderStart();
+    renderGoal();
+    applyPlayer();
   }
 
-  function clamp(v, min, max) {
-    return Math.max(min, Math.min(max, v));
-  }
-
-  const keys = new Set();
-  function stepFromHeld() {
-    let dx = 0,
-      dy = 0;
-    if (keys.has("arrowup") || keys.has("w")) dy -= 1;
-    if (keys.has("arrowdown") || keys.has("s")) dy += 1;
-    if (keys.has("arrowleft") || keys.has("a")) dx -= 1;
-    if (keys.has("arrowright") || keys.has("d")) dx += 1;
-    if (!dx && !dy) return;
-
-    const npx = clamp(px + dx, 0, cols - 1);
-    const npy = clamp(py + dy, 0, rows - 1);
-    if (npx !== px || npy !== py) {
-      px = npx;
-      py = npy;
-      place(player, px, py);
-      // Sjekk mål
-      if (px === gx && py === gy && overlay) {
-        overlay.classList.remove("hidden");
-        // Reset til start for demo
-        setTimeout(() => {
-          overlay.classList.add("hidden");
-          px = sx;
-          py = sy;
-          place(player, px, py);
-        }, 800);
-      }
+  function renderStart() {
+    if (!startEl) {
+      startEl = document.createElement("div");
+      startEl.className = "start";
+      board.appendChild(startEl);
     }
+    startEl.style.left = start.col * state.cell + "px";
+    startEl.style.top = start.row * state.cell + "px";
+    startEl.style.width = state.cell + "px";
+    startEl.style.height = state.cell + "px";
   }
 
-  const onKeyDown = (e) => {
-    const k = e.key.toLowerCase();
-    if (
-      ![
-        "arrowup",
-        "arrowdown",
-        "arrowleft",
-        "arrowright",
-        "w",
-        "a",
-        "s",
-        "d",
-      ].includes(k)
-    )
+  function renderGoal() {
+    if (!goalEl) {
+      goalEl = document.createElement("div");
+      goalEl.className = "goal";
+      board.appendChild(goalEl);
+    }
+    goalEl.style.left = goal.col * state.cell + "px";
+    goalEl.style.top = goal.row * state.cell + "px";
+    goalEl.style.width = state.cell + "px";
+    goalEl.style.height = state.cell + "px";
+  }
+
+  function applyPlayer() {
+    const left = state.col * state.cell + PADDING;
+    const top = state.row * state.cell + PADDING;
+    player.style.left = `${left}px`;
+    player.style.top = `${top}px`;
+    checkWin();
+  }
+
+  function moveBy(dr, dc) {
+    if (state.modalOpen) return;
+    state.row = clamp(state.row + dr, 0, CELLS - 1);
+    state.col = clamp(state.col + dc, 0, CELLS - 1);
+    applyPlayer();
+  }
+
+  function isMoveKey(k) {
+    const key = k.toLowerCase();
+    return [
+      "arrowup",
+      "arrowdown",
+      "arrowleft",
+      "arrowright",
+      "w",
+      "a",
+      "s",
+      "d",
+    ].includes(key);
+  }
+
+  function handleKey(e) {
+    if (!isMoveKey(e.key)) return;
+    if (state.modalOpen) {
+      e.preventDefault();
       return;
+    }
     e.preventDefault();
-    // Bare ett steg per keydown for grid-følelse
-    if (!keys.has(k)) {
-      keys.add(k);
-      stepFromHeld();
+    const k = e.key.toLowerCase();
+    if (k === "arrowup" || k === "w") moveBy(-1, 0);
+    else if (k === "arrowdown" || k === "s") moveBy(1, 0);
+    else if (k === "arrowleft" || k === "a") moveBy(0, -1);
+    else if (k === "arrowright" || k === "d") moveBy(0, 1);
+  }
+
+  function handleClick(e) {
+    if (state.modalOpen) return;
+    const rect = board.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const col = clamp(Math.floor(x / state.cell), 0, CELLS - 1);
+    const row = clamp(Math.floor(y / state.cell), 0, CELLS - 1);
+    state.col = col;
+    state.row = row;
+    applyPlayer();
+  }
+
+  function checkWin() {
+    if (state.row === goal.row && state.col === goal.col) openModal();
+  }
+
+  function openModal() {
+    state.modalOpen = true;
+    overlay?.classList.remove("hidden");
+    overlay?.setAttribute("aria-hidden", "false");
+    nextBtn?.focus?.();
+  }
+  function closeModal() {
+    state.modalOpen = false;
+    overlay?.classList.add("hidden");
+    overlay?.setAttribute("aria-hidden", "true");
+  }
+  function resetLevel() {
+    state.row = start.row;
+    state.col = start.col;
+    applyPlayer();
+    closeModal();
+  }
+
+  // Init + lyttere
+  layout();
+  const onResize = () => layout();
+  const onKeyDown = (e) => handleKey(e);
+  const onOverlayKey = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      resetLevel();
     }
   };
-  const onKeyUp = (e) => {
-    keys.delete(e.key.toLowerCase());
-  };
-
-  const onResize = () => layout();
-
-  // Init
-  layout();
   window.addEventListener("resize", onResize);
-  document.addEventListener("keydown", onKeyDown);
-  document.addEventListener("keyup", onKeyUp);
+  window.addEventListener("keydown", onKeyDown);
+  board.addEventListener("click", handleClick);
+  nextBtn?.addEventListener("click", resetLevel);
+  overlay?.addEventListener("keydown", onOverlayKey);
 
   return () => {
     window.removeEventListener("resize", onResize);
-    document.removeEventListener("keydown", onKeyDown);
-    document.removeEventListener("keyup", onKeyUp);
+    window.removeEventListener("keydown", onKeyDown);
+    board.removeEventListener("click", handleClick);
+    nextBtn?.removeEventListener("click", resetLevel);
+    overlay?.removeEventListener("keydown", onOverlayKey);
   };
 }

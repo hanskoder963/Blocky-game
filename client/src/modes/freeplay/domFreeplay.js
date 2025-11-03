@@ -1,28 +1,35 @@
-export function initDomFreeplay(stageEl, playerEl) {
+export function initDomFreeplay(stage, player) {
   const state = { step: 24, x: 0, y: 0, w: 0, h: 0 };
   const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
   const applyPosition = () => {
-    playerEl.style.left = `${state.x}px`;
-    playerEl.style.top = `${state.y}px`;
+    player.style.left = `${state.x}px`;
+    player.style.top = `${state.y}px`;
   };
 
-  playerEl.style.transform = "none";
-  let rect = playerEl.getBoundingClientRect();
+  // init (som i app.js)
+  player.style.transform = "none";
+  let rect = player.getBoundingClientRect();
   if (rect.width === 0 || rect.height === 0) {
-    playerEl.style.width = "64px";
-    playerEl.style.height = "64px";
-    rect = playerEl.getBoundingClientRect();
+    player.style.width = "64px";
+    player.style.height = "64px";
+    rect = player.getBoundingClientRect();
   }
   state.w = rect.width;
   state.h = rect.height;
-
-  state.x = Math.floor((stageEl.clientWidth - state.w) / 2);
-  state.y = Math.floor((stageEl.clientHeight - state.h) / 2);
+  state.x = Math.floor((stage.clientWidth - state.w) / 2);
+  state.y = Math.floor((stage.clientHeight - state.h) / 2);
   applyPosition();
 
-  const held = new Set();
-  const isMoveKey = (k) =>
-    [
+  function move(dx, dy) {
+    const maxX = stage.clientWidth - state.w;
+    const maxY = stage.clientHeight - state.h;
+    state.x = clamp(state.x + dx, 0, maxX);
+    state.y = clamp(state.y + dy, 0, maxY);
+    applyPosition();
+  }
+  function isMoveKey(k) {
+    const key = k.toLowerCase();
+    return [
       "arrowup",
       "arrowdown",
       "arrowleft",
@@ -31,16 +38,10 @@ export function initDomFreeplay(stageEl, playerEl) {
       "a",
       "s",
       "d",
-    ].includes(k.toLowerCase());
-
-  function move(dx, dy) {
-    const maxX = stageEl.clientWidth - state.w;
-    const maxY = stageEl.clientHeight - state.h;
-    state.x = clamp(state.x + dx, 0, maxX);
-    state.y = clamp(state.y + dy, 0, maxY);
-    applyPosition();
+    ].includes(key);
   }
 
+  const held = new Set();
   function stepFromHeld() {
     let dx = 0,
       dy = 0;
@@ -61,38 +62,37 @@ export function initDomFreeplay(stageEl, playerEl) {
     held.delete(e.key.toLowerCase());
   };
 
-  document.addEventListener("keydown", onKeyDown);
-  document.addEventListener("keyup", onKeyUp);
-
-  const clickHandler = (e) => {
-    if (e.target === playerEl) return;
-    const r = stageEl.getBoundingClientRect();
+  const onClick = (e) => {
+    if (e.target === player) return;
+    const r = stage.getBoundingClientRect();
     const clickX = e.clientX - r.left - state.w / 2;
     const clickY = e.clientY - r.top - state.h / 2;
-    const maxX = stageEl.clientWidth - state.w;
-    const maxY = stageEl.clientHeight - state.h;
+    const maxX = stage.clientWidth - state.w;
+    const maxY = stage.clientHeight - state.h;
     state.x = clamp(clickX, 0, maxX);
     state.y = clamp(clickY, 0, maxY);
     applyPosition();
   };
-  stageEl.addEventListener("click", clickHandler);
 
   const onResize = () => {
-    const maxX = stageEl.clientWidth - state.w;
-    const maxY = stageEl.clientHeight - state.h;
+    const maxX = stage.clientWidth - state.w;
+    const maxY = stage.clientHeight - state.h;
     state.x = clamp(state.x, 0, maxX);
     state.y = clamp(state.y, 0, maxY);
     applyPosition();
   };
-  window.addEventListener("resize", onResize);
 
+  document.addEventListener("keydown", onKeyDown);
+  document.addEventListener("keyup", onKeyUp);
+  stage.addEventListener("click", onClick);
+  window.addEventListener("resize", onResize);
   const interval = setInterval(stepFromHeld, 90);
 
   return () => {
     clearInterval(interval);
     document.removeEventListener("keydown", onKeyDown);
     document.removeEventListener("keyup", onKeyUp);
-    stageEl.removeEventListener("click", clickHandler);
+    stage.removeEventListener("click", onClick);
     window.removeEventListener("resize", onResize);
   };
 }

@@ -1,25 +1,37 @@
 .stage {
-  position: absolute;
-  inset: 0;
-  background: #0b0f14;
-  overflow: hidden;
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 .player {
   position: absolute;
+  left: 50%;
+  top: 50%;
   width: 64px;
   height: 64px;
-  background: #4ade80;
-  border-radius: 8px;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12) inset;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(135deg, var(--accent), #9ae6ff);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35),
+    inset 0 0 12px rgba(255, 255, 255, 0.35);
+  transition: left 120ms ease, top 120ms ease;
 }
 .hud {
   position: absolute;
-  left: 12px;
-  bottom: 12px;
-  color: #cbd5e1;
-  font: 14px/1.3 system-ui, Segoe UI, Roboto;
-  background: rgba(255, 255, 255, 0.06);
-  padding: 6px 10px;
-  border-radius: 8px;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  background: rgba(18, 26, 51, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  user-select: none;
+}
+.obstacle {
+  position: absolute;
+  background: #ffffff22;
+  border: 1px solid #ffffff55;
+  border-radius: 8px;
+  backdrop-filter: blur(2px);
 }
