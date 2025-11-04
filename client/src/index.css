@@ -22,40 +22,107 @@ body {
 
 .topnav {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 12px;
+  right: 12px;
+  left: auto;
   display: flex;
   gap: 8px;
-  padding: 12px 16px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  z-index: 3000; /* over alt annet */
+}
+
+/* A11y */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Nav brand og toggle */
+.topnav .brand {
+  font-weight: 700;
+}
+.nav-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #0f1526;
+  color: #cfd6ff;
+  border: 1px solid #ffffff22;
+  border-radius: 10px;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+.nav-links {
+  position: fixed;
+  top: 52px; /* rett under burger-knappen */
+  right: 12px;
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  min-width: 180px;
   background: linear-gradient(
     180deg,
-    rgba(10, 14, 30, 0.9),
-    rgba(10, 14, 30, 0.6)
+    rgba(10, 14, 30, 0.98),
+    rgba(10, 14, 30, 0.88)
   );
-  border-bottom: 1px solid #ffffff15;
-  z-index: 10;
-  backdrop-filter: blur(6px);
+  border: 1px solid #ffffff22;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  z-index: 2900;
 }
-.topnav a {
+.nav-links a {
+  display: block;
   color: #cfd6ff;
   text-decoration: none;
-  padding: 8px 12px;
+  padding: 10px 12px;
   border-radius: 10px;
   border: 1px solid transparent;
-  transition: transform 0.12s, background 0.12s, border-color 0.12s;
+  transition: transform 0.12s ease, background 0.12s ease,
+    border-color 0.12s ease;
 }
-.topnav a:hover {
+.nav-links a:hover {
   transform: translateY(-1px);
-  background: #ffffff0f;
+  background: #ffffff10;
+  border-color: #ffffff25;
 }
-.topnav a.active {
+.nav-links a.active,
+.nav-links a[aria-current="page"] {
   background: #ffffff14;
   border-color: #ffffff25;
 }
+.nav-links[data-open="true"] {
+  display: flex;
+}
 
-.view {
+/* Klikkfanger uten dimming */
+.nav-overlay {
   position: fixed;
-  inset: 56px 0 0 0;
-  overflow: hidden;
+  inset: 0; /* ikke 56px – dekker hele skjermen */
+  background: transparent;
+  z-index: 2800;
+}
+
+/* Felles rad: spillbrett + høyrepanel */
+.game-row {
+  display: grid;
+  grid-template-columns: auto 320px; /* brett | inventory */
+  align-items: start;
+  gap: 16px;
+  justify-content: center; /* behold brettet i samme horisontale posisjon */
+}
+
+@media (max-width: 1100px) {
+  .game-row {
+    grid-template-columns: 1fr;
+  } /* panel under på smal skjerm */
 }

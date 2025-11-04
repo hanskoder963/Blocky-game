@@ -2,6 +2,10 @@ export function startPG({ board, player, overlay, nextBtn }) {
   const CELLS = 11;
   const PADDING = 4;
 
+  const GAIN_FACTOR = 1;
+  const rnd = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+  const gainFrom = (val) => Math.max(1, Math.floor(val * GAIN_FACTOR));
+
   const start = { row: CELLS - 1, col: Math.floor(CELLS / 2) };
   const goal = { row: 0, col: Math.floor(CELLS / 2) };
 
@@ -183,10 +187,25 @@ export function startPG({ board, player, overlay, nextBtn }) {
     return vals;
   }
 
+  function buildChainValues(count) {
+    const vals = [];
+    let hypot = power;
+    for (let i = 0; i < count; i++) {
+      let cap = Math.max(1, Math.floor(hypot - 1));
+      let min = Math.max(1, Math.floor(cap * 0.5));
+      if (min > cap) min = cap;
+      const val = rnd(min, cap);
+      vals.push(val);
+      hypot += gainFrom(val);
+    }
+    if (!(vals[0] < power)) vals[0] = Math.max(1, power - 1);
+    return vals;
+  }
+
   function spawnWave() {
     clearEnemies();
-    const count = 3 + Math.floor(Math.random() * 4); // 3-6)
-    const vals = rollValues(count);
+    const count = wave <= 3 ? 3 : 3 + Math.floor(Math.random() * 4); // 3-6)
+    const vals = wave <= 3 ? buildChainValues(count) : rollValues(count);
     for (let i = 0; i < count; i++) {
       let r,
         c,
@@ -206,13 +225,14 @@ export function startPG({ board, player, overlay, nextBtn }) {
   }
 
   function consume(en) {
-    power += en.val; //growth when consuming
+    power += gainFrom(en.val); //growth when consuming
     setPlayerLabel();
     en.el.remove();
     const idx = enemies.indexOf(en);
     if (idx >= 0) enemies.splice(idx, 1);
     player.style.filter = "brigtness(1.15)";
     setTimeout(() => (player.style.filter = ""), 120);
+    checkWin();
   }
 
   function checkEnemyCollision() {

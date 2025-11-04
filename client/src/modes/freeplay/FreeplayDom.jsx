@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { initDomFreeplay } from "./domFreeplay";
 import "./freeplay.css";
+import InventoryPanel from "../../ui/InventoryPanel";
 
 export default function FreeplayDom() {
   const stageRef = useRef(null);
@@ -14,10 +15,16 @@ export default function FreeplayDom() {
 
   return (
     <div className="view">
-      <div className="stage" ref={stageRef}>
-        <div className="player" ref={playerRef} />
-        <div className="hud">WASD / Piltaster · Klikk for å flytte</div>
-      </div>
+      <main className="wrap">
+        <h1>Freeplay</h1>
+        <div className="game-row">
+          <div className="stage" ref={stageRef}>
+            <div className="player" ref={playerRef} />
+            <div className="hud">WASD / Piltaster · Klikk for å flytte</div>
+          </div>
+        </div>
+      </main>
+      <InventoryPanel />
     </div>
   );
 }

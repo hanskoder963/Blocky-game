@@ -110,11 +110,11 @@ h1 {
 }
 .overlay {
   position: fixed;
-  inset: 56px 0 0 0; /* under nav */
+  inset: 0; /* full skjerm */
   background: rgba(0, 0, 0, 0.55);
   display: grid;
   place-items: center;
-  z-index: 100;
+  z-index: 2000; /* over nav/burger */
 }
 .modal {
   background: #101833;
