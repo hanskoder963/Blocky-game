@@ -1,21 +1,49 @@
 .stage {
   position: relative;
-  width: 100%;
-  height: 100%;
+  width: min(90vmin, 960px);
+  height: min(90vmin, 960px);
+  margin: 0 auto;
+  overflow: hidden; /* kamera-visning */
+  background: #142036;
+  border: 1px solid #2a334d;
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 1px #0008, 0 12px 28px rgba(0, 0, 0, 0.35);
 }
+
+/* Stor verden – flyttes med transform for “kamera” */
+.world {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--world-w, 3000px);
+  height: var(--world-h, 3000px);
+  /* subtilt rutenett så man ser bevegelse */
+  background: linear-gradient(#0f1b2d, #0f1b2d),
+    repeating-linear-gradient(0deg, transparent 0 79px, #22324a 79px 80px),
+    repeating-linear-gradient(90deg, transparent 0 79px, #22324a 79px 80px);
+}
+
 .player {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 64px;
-  height: 64px;
-  transform: translate(-50%, -50%);
-  background: linear-gradient(135deg, var(--accent), #9ae6ff);
-  border-radius: 14px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35),
-    inset 0 0 12px rgba(255, 255, 255, 0.35);
-  transition: left 120ms ease, top 120ms ease;
+  left: 0;
+  top: 0;
+  width: 40px;
+  height: 40px;
+  background: #52ffa8;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
 }
+
+.enemy {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: radial-gradient(circle at 30% 30%, #ff6b6b, #c53030);
+  border: 1px solid #ff8b8b55;
+  box-shadow: 0 8px 18px rgba(255, 70, 70, 0.25);
+}
+
 .hud {
   position: absolute;
   left: 50%;

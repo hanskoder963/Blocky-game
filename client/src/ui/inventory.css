@@ -71,6 +71,38 @@
     0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
+/* separator under grid (samme stil som under tabs) */
+.inv-sep {
+  margin-top: 10px;
+  border-top: 1px solid #ffffff14;
+}
+
+/* footer med coins */
+.inv-footer {
+  display: flex;
+  justify-content: flex-start;
+  padding-top: 8px;
+}
+
+.coin-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #0f1526;
+  color: #cfd6ff;
+  border: 1px solid #ffffff22;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  font-weight: 700;
+}
+.coin-icon {
+  filter: drop-shadow(0 1px 0 #0008);
+}
+.coin-amount {
+  letter-spacing: 0.2px;
+}
+
 /* Mobil: backpack-knapp + bottom sheet */
 .backpack-btn {
   display: none;

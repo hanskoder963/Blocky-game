@@ -9,7 +9,7 @@ const TABS = [
   { id: "keys", label: "Keys", icon: "🔑" },
 ];
 
-export default function InventoryPanel({ open = false, id }) {
+export default function InventoryPanel({ open = false, id, coins = 0 }) {
   const [tab, setTab] = useState(TABS[0].id);
   const slots = Array.from({ length: 36 }, () => null);
 
@@ -33,6 +33,18 @@ export default function InventoryPanel({ open = false, id }) {
         {slots.map((_, i) => (
           <div key={i} className="inv-cell" />
         ))}
+      </div>
+
+      <div className="inv-sep" aria-hidden="true" />
+      <div className="inv-footer" role="contentinfo">
+        <div className="coin-chip" aria-label="Coins">
+          <span className="coin-icon" aria-hidden="true">
+            🪙
+          </span>
+          <span className="coin-amount">
+            {typeof coins === "number" ? coins.toLocaleString() : coins}
+          </span>
+        </div>
       </div>
     </aside>
   );
