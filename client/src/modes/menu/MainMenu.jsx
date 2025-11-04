@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import "./menu.css";
-import { useGame } from "../../game/store";
 
 export default function MainMenu() {
   const { coins, inventory } = useGame();
