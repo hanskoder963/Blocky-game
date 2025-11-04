@@ -1,0 +1,28 @@
+.gt-wrap {
+  position: absolute;
+  inset: 0;
+  padding: 72px 16px 16px;
+  display: grid;
+  gap: 16px;
+  align-content: start;
+  justify-items: center;
+}
+h1 {
+  margin: 0 0 4px;
+  font: 600 18px/1.2 system-ui, Segoe UI, Roboto;
+}
+.card {
+  width: min(920px, 92vw);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.card h2 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+.notes {
+  white-space: pre-wrap;
+  font: 13px/1.35 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
